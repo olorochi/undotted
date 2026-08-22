@@ -1,0 +1,219 @@
+#! /bin/ksh
+
+jobstats() {
+  rc=$?
+  out=$(
+    jobs -l 2>/dev/null |
+    awk '
+    BEGIN { active=inactive=0; current="-" }
+
+    /^\[/ {
+      job=$1
+      sub(/^\[/, "", job)
+      sub(/\].*/, "", job)
+
+      if ($2 == "+")
+        current=job
+
+      state=""
+      for (i=1; i<=NF; i++) {
+        if ($i == "Running" || $i == "Stopped" ||
+            $i == "Done" || $i == "Terminated" ||
+            $i == "Killed") {
+          state=$i
+          break
+        }
+      }
+
+      if (state == "Running")
+        active++
+      else
+        inactive++
+    }
+
+    END {
+      if (active + inactive > 0)
+        print active ":" inactive ":" current
+    }'
+  )
+
+  if [ "$rc" -eq 0 ]; then
+    print "\033[32m${out:+$out:}$rc\033[0m"
+  else
+    print "\033[31m${out:+$out:}$rc\033[0m"
+  fi
+
+  return "$rc"
+}
+
+PS1='[34m$USER[0m@[31m$HOSTNAME [33m$PWD [0m[$(jobstats)] > '
+set -o vi
+
+alias sudo='s'
+alias s='doas '
+alias su='doas su'
+alias se='doas $EDITOR'
+alias x='xargs'
+alias n='nice'
+alias nocorrect="$@"
+alias kys='export KISS_DEBUG=1'
+alias kcd=kiss-cd
+alias kadd=kiss-adddep
+alias krem=kiss-remdep
+alias g='git'
+alias add='cd && ga $(cat gitlist) && cd -'
+alias commit='cd && gc -m "Quick commit." && cd -'
+alias gcl='g clone'
+alias ghcl='github-clone'
+alias ga='g add'
+alias gs='g status'
+alias gsh='g show'
+alias gw='g switch'
+alias gl='g log --no-color --stat'
+alias gp='g push'
+alias gf='g fetch'
+alias gpl='g pull'
+alias gc='g commit'
+alias gr='g restore'
+alias grs='g reset'
+alias grss='g reset --soft'
+alias grm='g rm'
+alias gi='g init'
+alias gd='g diff --no-color'
+alias gv='g revert'
+alias gch='g checkout'
+alias gm='g merge'
+alias gmv='g mv'
+alias gb='g branch'
+alias gbl='g blame'
+alias gss='g stash'
+alias gls='g ls-files'
+alias grb='g rebase'
+alias gcf='g config'
+alias gg='g grep'
+alias gds='g describe'
+alias gt="g tag --sort='-*authordate'"
+alias gre='g remote'
+alias gu='gch tags/$(gt --sort="-*authordate" | head -n 1)'
+alias gfu='gch tags/$(gt --sort="-*authordate" | fzf)'
+alias py='python3'
+alias ff='fastfetch'
+alias h='history $HISTSIZE | tac | fzf'
+alias rep='perf report'
+alias la='ls -a'
+alias fuck='eval "sudo $(fc -ln -1)"'
+alias zigstd="zig std --no-open-browser | head -n 1 | xargs librewolf"
+alias swayconf='vim ~/config/sway/config'
+alias config='vim ~/config/kshrc && . ~/config/kshrc'
+alias profile='vim ~/.profile && . ~/.profile'
+alias za='zathura'
+alias reboot="powerctl reboot"
+alias poweroff="powerctl poweroff"
+alias halt="powerctl halt"
+alias ls="ls --color=auto"
+alias la="ls -a --color=auto"
+alias l="ls -lah --color=auto"
+alias grep="grep --color"
+alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
+alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
+alias src=". src"
+alias w="w3m duckduckgo.com"
+alias wifi="doas rc-service wpa_supplicant_custom restart"
+alias wpa="wpa_cli"
+alias scan="wpa_cli scan > /dev/null && wpa_cli scan_results"
+alias pimp="pip"
+alias reload="exec $SHELL"
+
+function github-clone {
+  for repo in $@; do
+    git clone https://github.com/$repo
+  done
+}
+
+# fzfiles was a fzf based file browser I had made before accidentally deleting
+# my home partition.
+function fzfiles {
+  cd "$(command fzfiles $@ | tail -n 1)"
+}
+
+function vw {
+  $EDITOR $(whence $@)
+}
+
+function connect {
+  wpa_passphrase $1 $2 | doas tee -a /etc/wpa_supplicant/wpa_supplicant.conf
+}
+
+function xat {
+  which $@ | xargs cat
+}
+
+function v {
+  if [ $# -eq 0 ]; then
+    $EDITOR ./
+  else
+    $EDITOR $@
+  fi
+}
+
+# function clocs {
+#   git ls-files | { [ $# -ne 0 ] && grep $@ || cat } | xargs wc -l | sort -n
+# }
+
+# never again
+# function nuke {
+#   target=$(pwd)
+#   cd ..
+#   rm -rf $target
+# }
+
+function dotnew {
+  dotnet new console -o "$1" --no-restore=true
+  cd "$1"
+  dotnet new sln
+  dotnet sln add "$1.csproj"
+}
+
+function dotnewl {
+  dotnet new classlib -o "$1" --no-restore=true
+  cd "$1"
+  dotnet new sln
+  dotnet sln add "$1.csproj"
+}
+
+function rec {
+  perf record --call-graph dwarf,16384 -g -o perf.data $@
+}
+
+function recp {
+  rec $@
+  rep
+}
+
+function flame {
+  perf script | stackcollapse-perf.pl | flamegraph.pl > flamegraph.svg
+  librewolf flamegraph.svg
+}
+
+function recf {
+  rec $1
+  flame
+}
+
+function kiss-cd {
+  cd $(k s $1 | head -n 1)
+}
+
+function kiss-adddep {
+  printf '%s\n' $@ >> depends
+  sort depends -o depends
+}
+
+function kiss-remdep {
+  grep -v ^cbindgen[\ $] depends > depends_remdep_tmp
+  mv depends{_remdep_tmp,}
+}
+
+# function info {
+#   $EDITOR "+Info $1" +only
+# }

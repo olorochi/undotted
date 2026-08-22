@@ -1,0 +1,158 @@
+# exec mpd-launcher
+exec foot --server
+
+set $mod Mod4
+set $border pixel 1
+
+set $left h
+set $down j
+set $up k
+set $right l
+
+for_window [title="swayfloat"] floating enable
+for_window [floating] opacity 0.9
+
+output DP-1 resolution 1920x1080 position -1920,0
+output DP-2 resolution 2560x1440 position 0,0
+workspace 1:"DP-1" output DP-1
+workspace 1:"DP-2" output DP-2
+
+# class                 border  backgr. text    indicator child_border
+client.focused          #333333 #191919 #ffffff #5c5c5c   #333333
+client.focused_inactive #111111 #191919 #686868 #111111   #111111
+client.unfocused        #111111 #191919 #686868 #111111   #111111
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+client.background       #ffffff
+
+font "Gohu GohuFont" 11
+mouse_warping container
+
+input type:keyboard {
+    repeat_rate 35
+    repeat_delay 200
+    xkb_options caps:swapescape,grp:win_space_toggle
+    xkb_layout us,ca
+}
+
+input type:pointer {
+    accel_profile flat
+    pointer_accel 0.5
+}
+
+default_border $border
+smart_borders on
+
+seat * hide_cursor 750
+
+floating_modifier $mod normal
+
+bindsym --no-repeat $mod+q exec footclient
+bindsym --no-repeat $mod+Shift+q exec foot
+bindsym --no-repeat $mod+w exec librewolf
+bindsym --no-repeat $mod+u exec $term -T swayfloat cpunicode
+
+bindsym --no-repeat $mod+c kill
+bindsym --no-repeat $mod+Shift+r reload
+
+bindsym --no-repeat $mod+m exec swaymsg exit
+bindsym --no-repeat $mod+Shift+m exec powerctl poweroff
+bindsym --no-repeat $mod+Alt+m exec powerctl reboot
+
+bindsym --no-repeat $mod+i border normal
+bindsym --no-repeat $mod+Shift+i border $border
+
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+
+bindsym --no-repeat $mod+Up focus output up
+bindsym --no-repeat $mod+Down focus output down
+
+bindsym --no-repeat $mod+Shift+Up move container to output up
+bindsym --no-repeat $mod+Shift+Down move container to output down
+
+bindsym --no-repeat $mod+1 exec sw-workspace 1
+bindsym --no-repeat $mod+2 exec sw-workspace 2
+bindsym --no-repeat $mod+3 exec sw-workspace 3
+bindsym --no-repeat $mod+4 exec sw-workspace 4
+bindsym --no-repeat $mod+5 exec sw-workspace 5
+bindsym --no-repeat $mod+6 exec sw-workspace 6
+bindsym --no-repeat $mod+7 exec sw-workspace 7
+bindsym --no-repeat $mod+8 exec sw-workspace 8
+bindsym --no-repeat $mod+9 exec sw-workspace 9
+bindsym --no-repeat $mod+0 exec sw-workspace 10
+bindsym --no-repeat $mod+Shift+1 exec mv-workspace 1
+bindsym --no-repeat $mod+Shift+2 exec mv-workspace 2
+bindsym --no-repeat $mod+Shift+3 exec mv-workspace 3
+bindsym --no-repeat $mod+Shift+4 exec mv-workspace 4
+bindsym --no-repeat $mod+Shift+5 exec mv-workspace 5
+bindsym --no-repeat $mod+Shift+6 exec mv-workspace 6
+bindsym --no-repeat $mod+Shift+7 exec mv-workspace 7
+bindsym --no-repeat $mod+Shift+8 exec mv-workspace 8
+bindsym --no-repeat $mod+Shift+9 exec mv-workspace 9
+bindsym --no-repeat $mod+Shift+0 exec mv-workspace 10
+
+bindsym --no-repeat $mod+v splith
+bindsym --no-repeat $mod+b splitv
+bindsym --no-repeat $mod+t layout tabbed
+bindsym --no-repeat $mod+s layout toggle split
+bindsym --no-repeat $mod+f fullscreen
+
+bindsym --no-repeat $mod+Shift+d floating toggle
+bindsym --no-repeat $mod+d focus mode_toggle
+bindsym --no-repeat $mod+Shift+minus move scratchpad
+bindsym --no-repeat $mod+minus scratchpad show
+
+bindsym $mod+a focus parent
+bindsym $mod+x focus child
+
+
+bindsym --no-repeat Print exec screenshot
+
+bindsym --no-repeat $mod+p mode "-- MPD --"
+mode "-- MPD --" {
+    bindsym --no-repeat $left exec mpc prev
+    bindsym --no-repeat $right exec mpc next
+    bindsym --no-repeat Space exec mpc toggle
+    bindsym --no-repeat p exec mpd-album-shuffle play; mpc play
+    bindsym $down exec mpc volume -5
+    bindsym $up exec mpc volume +5
+    bindsym Escape mode "default"
+}
+
+bindsym --no-repeat $mod+y mode "-- RESIZE --"
+mode "-- RESIZE --" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    bindsym Escape mode "default"
+}
+
+bar {
+    position top
+    strip_workspace_name yes
+    font "Gohu GohuFont" 11
+
+    # status_command statusbar
+    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+
+    colors {
+        statusline #ffffff
+        background #000000
+        inactive_workspace #000000 #000000 #5c5c5c
+        urgent_workspace #a000a0 #a005a0 #ffffff
+        focused_workspace #b02222 #b02323 #ffffff
+        binding_mode #000000 #000000 #da4040
+    }
+}
+
+# include /etc/sway/config.d/*

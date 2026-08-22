@@ -1,0 +1,8 @@
+#! /bin/sh
+
+pos=$(mpc -f '%position%' current)
+mpc playlist \
+	| fzf --tac --sync --raw --scroll-off 999999 --bind "start:pos(-$pos)" --bind "ctrl-h:pos(-$pos)" --accept-nth '{n} + 1' \
+	| bc \
+	| sed "s/'/\\\'/g" \
+	| xargs mpc play

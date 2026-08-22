@@ -1,0 +1,7 @@
+#! /bin/sh
+
+footclient sh -c '
+    tty > "$XDG_RUNTIME_DIR/daptty"
+    exec tail -f /dev/null
+'
+rm -f "$XDG_RUNTIME_DIR/daptty"

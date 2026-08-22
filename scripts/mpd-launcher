@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir $XDG_RUNTIME_DIR/mpd 2> /dev/null
+kill $(pidof mpd) 2> /dev/null
+mpd
+mpc add library

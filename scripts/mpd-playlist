@@ -1,0 +1,18 @@
+#! /bin/sh
+
+~/Music/sort.sh
+mpc update --wait
+
+read -r time state < <(mpc status "%currenttime% %state%")
+query=$(mpc current -f "[artist \"%artist%\"] [album \"%album%\"] [title \"%title%\"] [track \"%track%\"]")
+mpc clear >/dev/null
+mpc add library >/dev/null
+
+case $state in
+	paused|playing)
+		eval "mpc searchplay $query" >/dev/null
+		mpc seek $time >/dev/null
+		;;&
+	paused)
+		mpc pause >/dev/null
+esac

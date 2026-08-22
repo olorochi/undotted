@@ -1,0 +1,366 @@
+vim9s
+
+def g:LibCall(lib: string, fn: string, arg: string): string
+    return libcall($MYVIMDIR .. "lib/" .. lib, fn, arg)
+enddef
+def g:LibCallNr(lib: string, fn: string, arg: string): number
+    return libcallnr($MYVIMDIR .. "lib/" .. lib, fn, arg)
+enddef
+
+def g:FileInfo(): string
+    if (&buftype != "")
+        return ""
+    endif
+    return g:LibCall('FSLib.so', 'fileInfo', expand('%'))
+enddef
+
+def g:Warn(mes: string)
+    echoh WarningMsg | echom mes | echoh None
+enddef
+
+g:LastVimRoot = v:null
+def g:FindProjRoot(): string
+    var p = getcwd()
+    while (!isdirectory(p .. "/.vim"))
+        if (p == "/")
+            if (g:LastVimRoot == null)
+                throw "Could not find root"
+            else
+                return g:LastVimRoot
+            endif
+        endif
+        p = fnamemodify(p, ":h")
+    endwhile
+    p = p .. "/"
+    g:LastVimRoot = p
+
+    return p
+enddef
+
+def g:GetProjKey(root: string, key: string): list<string>
+    return readfile(root .. ".vim/" .. key)
+enddef
+
+def g:GetFirstProjKey(root: string, key: string): string
+    return readfile(root .. ".vim/" .. key, "", 1)[0]
+enddef
+
+def g:ExpandRoot(root: string, s: string): string
+    return substitute(s, "%[^%]", root, "g")
+enddef
+
+def g:LogPath(root: string): string
+    return root .. ".vim/build_log"
+enddef
+
+def g:Make(root: string)
+    ec "Compiling..." # TODO: don't hang
+    var log = g:LogPath(root)
+    system(root ..  ".vim/make &>" .. log)
+
+    echom ("Child exited with [" .. v:shell_error .. "]")
+    if (v:shell_error != 0) 
+        exe "cg " .. log
+        cw
+    endif
+enddef
+
+def g:LogInQf(root: string)
+    exec "cg " .. g:LogPath(root)
+    cw
+enddef
+
+def g:Run(root: string)
+    var path = g:ExpandRoot(root, g:GetFirstProjKey(root, "run"))
+    vimspector#LaunchWithSettings({"Path": path, "Cwd": fnamemodify(path, ":h")})
+    ec path
+enddef
+
+def g:ContinueDbg()
+    var new: bool
+    try
+        new = py3eval("_vimspector_session._connection is None")
+    catch
+        new = true
+    endtry
+
+    if (new)
+        var root = g:FindProjRoot()
+        g:Make(root)
+        if (v:shell_error == 0)
+            g:Run(root)
+        endif
+    else
+        vimspector#Continue()
+    endif
+enddef
+
+def g:CleanBufs()
+    var bufs = filter(getbufinfo({"buflisted": true}), (_, v) => !v.changed && v.hidden)
+    for buf in bufs
+        exe "bd " .. buf.bufnr
+    endfor
+enddef
+# au BufEnter * call CleanBufs()
+
+def g:LspSetup()
+    g:LspOptionsSet({
+            # autoComplete: v:false,
+            autoHighlight: v:true,
+            completionMatcher: 'fuzzy',
+            completionMatcherValue: 1,
+            echoSignature: v:true,
+            diagSignErrorText: 'E',
+            diagSignHintText: 'H',
+            diagSignInfoText: 'I',
+            diagSignWarningText: 'W',
+            hideDisabledCodeActions: v:false,
+            hoverInPreview: v:false,
+            diagVirtualTextAlign: 'after',
+            diagVirtualTextWrap: 'truncate',
+            noNewlineInCompletion: v:false,
+            # omniComplete: v:true,
+            # omniCompleteAllowBare: v:true,
+            outlineOnRight: v:true,
+            outlineWinSize: 30,
+            popupBorder: v:true,
+            popupBorderHighlight: 'Title',
+            popupHighlight: 'Normal',
+            semanticHighlight: v:true,
+            showDiagInPopup: v:false,
+            showDiagWithVirtualText: v:true,
+            showDiagWithSign: v:false,
+            showInlayHints: v:false,
+            showSignature: v:true,
+            snippetSupport: v:false,
+            useBufferCompletion: v:true,
+            usePopupInCodeAction: v:false,
+            useQuickfixForLocations: v:true,
+            filterCompletionDuplicates: v:true,
+            condensedCompletionMenu: v:true,
+        })
+
+    g:LspAddServer([{
+        name: 'clang',
+        filetype: ['c', 'cpp'],
+        path: 'clangd',
+        args: [ "--background-index", "--clang-tidy", "--completion-style=bundled", "--header-insertion=iwyu", "--header-insertion-decorators", "--limit-references=0", "--limit-results=0", "--rename-file-limit=0" ]
+    },
+    {
+        name: 'zls',
+        filetype: 'zig',
+        path: 'zls'
+    },
+    # {
+    #     name: 'csharp-ls',
+    #     filetype: 'cs',
+    #     path: 'csharp-ls'
+    # }
+    ])
+
+    no <silent>gln :LspRename<cr>
+    no <silent>gla :LspCodeAction<cr>
+    no <silent>gls :LspDocumentSymbol<cr>
+    no <silent>glS :LspSymbolSearch<cr>
+    no <silent>glD :LspGotoDeclaration<cr>
+    no <silent>gld :LspGotoDefinition<cr>
+    no <silent>glt :LspGotoTypeDef<cr>
+    no <silent>gli :LspGotoImpl<cr>
+    no <silent>glr :LspShowReferences<cr>
+    no <silent>glh :LspInlayHints<cr>
+    no <silent>glk :LspIncomingCalls<cr>
+    no <silent>glj :LspOutgoingCalls<cr>
+    no <silent>glJ :LspSubTypeHierarchy<cr>
+    no <silent>glK :LspSuperTypeHierarchy<cr>
+    nno <silent><c-space> :LspSelectionExpand<cr>
+    nno <silent><c-s-space> :LspSelectionShrink<cr>
+    xno <silent><c-space> :<bs><bs><bs><bs><bs>LspSelectionExpand<cr>
+    xno <silent><c-s-space> :<bs><bs><bs><bs><bs>LspSelectionShrink<cr>
+    no <silent><leader>xx :LspDiag current<cr>
+    no <silent><leader>xl :LspDiag show<cr>
+    no <silent>]x :LspDiag next<cr>
+    no <silent>[x :LspDiag prev<cr>
+    no <silent>]X :LspDiag last<cr>
+    no <silent>[X :LspDiag first<cr>
+    no <silent>+ :LspFormat<cr>
+    # for some reason LspComplete(v:true) bricks zls and perhaps every lsp
+    # until restart.
+    # ino <C-space> <C-\><C-o>:call lsp#completion#LspComplete(v:true)<cr>
+
+    aug LspMapOverrides
+        au User LspAttached {
+                no <buffer><silent>gO :LspOutline<cr>
+                no <buffer><silent>K :LspHover<cr>
+                no <buffer><silent><c-^> :LspSwitchSourceHeader<cr>
+            }
+    aug END
+
+    aug HoldHl
+        au CursorHold,CursorHoldI * sil! LspHighlight
+        au CursorMoved,CursorMovedI * sil! LspHighlightClear
+    aug END
+enddef
+
+so $MYVIMDIR/darkmax.vim
+
+&t_SI = "\e[6 q"
+&t_EI = "\e[2 q"
+au VimEnter * sil! !echo -ne "\e[2 q" | redraw!
+
+se nu
+se rnu
+se is
+se acd
+se ai
+se ci
+se ar
+se hid
+se nowrap
+se cdh
+se cul
+se et
+se top
+se udf
+se sr
+se sb
+se spr
+se spr
+se scs
+se sts=-1
+se ts=4
+se sw=4
+se so=5
+se siso=10
+se culopt=number
+se path+=**
+se cpm=wayland
+se fdm=indent
+se nofen
+se uc=50
+se ut=500
+se list
+se lcs=tab:»\ ,space:·
+se stl=%n:\ %{getcwd()}\ %f\ %{%g:FileInfo()%}\ %h%w%m%r%=%y\ %-12.(%l:%c%V/%L%)\ %-3.P%<
+se ls=2
+se cot=fuzzy,menuone,noselect,popup
+se vi=<10000,'200
+se hi=1000
+se ve=all
+se dir=$XDG_RUNTIME_DIR
+se udir=~/.cache/vim/undo
+se shcf=-ic
+se shm=acT
+se nosmd
+
+g:mapleader = " "
+g:maplocalleader = "\\"
+
+g:netrw_home = "~/.cache/vim"
+
+no 0 ^
+no ^ 0
+no <c-h> <c-w><c-h>
+no <c-j> <c-w><c-j>
+no <c-k> <c-w><c-k>
+no <c-l> <c-w><c-l>
+nn <silent><leader><leader> :noh<CR>
+no <silent>K <Plug>ManPreGetPage
+nno Y y$
+ino <c-space> <c-x><c-o>
+no <leader>q :call system("footclient&")<cr>
+no <silent><c-w>c :tabc<cr>
+
+pa comment
+pa hlyank
+ru ftplugin/man.vim
+
+call plug#begin()
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-fugitive'
+Plug 'jeetsukumaran/vim-indentwise'
+Plug 'airblade/vim-gitgutter'
+Plug 'unblevable/quick-scope'
+Plug 'jiangmiao/auto-pairs'
+Plug 'yegappan/lsp'
+Plug 'puremourning/vimspector'
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf'
+call plug#end()
+
+au User LspSetup call LspSetup()
+
+g:vimspector_base_dir = $MYVIMDIR .. "vimspector"
+# g:vimspector_log_file = expand('~/.vimspector.log')
+# g:vimspector_log_level = 'TRACE'
+
+g:gitgutter_sign_priority = 1
+sign define vimspectorBP text=B\  texthl=WarningMsg priority=100
+sign define vimspectorBPCond text=C\  texthl=WarningMsg priority=100
+sign define vimspectorBPLog text=L\  texthl=SpellRare priority=100
+sign define vimspectorBPDisabled text=P\  texthl=LineNr priority=100
+sign define vimspectorPC text=>\  texthl=CursorLineNr linehl=CursorLine priority=100
+sign define vimspectorPCBP text=B> texthl=CursorLineNr linehl=CursorLine priority=100
+sign define vimspectorNonActivePC linehl=DiffAdd priority=100
+sign define vimspectorCurrentThread text=>\  texthl=CursorLineNr linehl=CursorLine priority=100
+sign define vimspectorCurrentFrame text=>\  texthl=Special linehl=CursorLine priority=100
+
+no <silent>[q :cp<cr>
+no <silent>[Q :cla<cr>
+no <silent>]q :cn<cr>
+no <silent>]Q :cfir<cr>
+no <silent>[l :lp<cr>
+no <silent>[L :lla<cr>
+no <silent>]l :ln<cr>
+no <silent>]L :lfir<cr>
+
+no ghp <Plug>(GitGutterPreviewHunk)
+no ghs <Plug>(GitGutterStageHunk)
+no ghu <Plug>(GitGutterUndoHunk)
+no [h <Plug>(GitGutterPrevHunk)
+no ]h <Plug>(GitGutterNextHunk)
+om ic <Plug>(GitGutterTextObjectInnerPending)
+om ac <Plug>(GitGutterTextObjectOuterPending)
+xm ic <Plug>(GitGutterTextObjectInnerVisual)
+xm ac <Plug>(GitGutterTextObjectOuterVisual)
+
+no [b <plug>VimspectorJumpToPreviousBreakpoint
+no ]b <plug>VimspectorJumpToNextBreakpoint
+no <leader>dw <plug>VimspectorJumpToProgramCounter
+no <leader>dW <plug>VimspectorJumpGoToCurrentLine
+no <leader>b <plug>VimspectorToggleBreakpoint
+no <leader>B <plug>VimspectorAddFunctionBreakpoint
+no <leader>db <plug>VimspectorToggleConditionalBreakpoint
+no <leader>dl <plug>VimspectorBreakpoints
+no <leader>ds <plug>VimspectorDisassemble
+no <leader>dk <plug>VimspectorBalloonEval
+no <down> <plug>VimspectorUpFrame
+no <up> <plug>VimspectorDownFrame
+no <silent><f2> :call vimspector#Pause()<cr>
+no <f4> <plug>VimspectorStop
+no <silent><f5> :call ContinueDbg()<cr>
+no <silent><f6> :call Make(FindProjRoot())<cr>
+no <silent><f7> :call Run(FindProjRoot())<cr>
+no <silent><leader>xc :call LogInQf(FindProjRoot())<cr>:cope<cr>
+no <f9> <plug>VimspectorRunToCursor
+no <f10> <plug>VimspectorStepOver
+no <f11> <plug>VimspectorStepInto
+no <f12> <plug>VimspectorStepOut
+
+no <silent><leader>sf :Files<cr>
+no <silent><leader>sv :Files $MYVIMDIR<cr>
+no <silent><leader>sg :GFiles<cr>
+no <silent><leader>ss :GFiles?<cr>
+no <silent><leader>sb :Buffers<cr>
+no <silent><leader>sc :Changes<cr>
+no <silent><leader>sg :RG<cr>
+no <silent><leader>s/ :BLines<cr>
+no <silent><leader>so :Jumps<cr>
+no <silent><leader>sh :Helptags<cr>
+no <silent><leader>s. :History<cr>
+no <silent><leader>s: :History:<cr>
+no <silent><leader>s' :Marks<cr>
+no <silent><leader>sk :Maps<cr>
+no <silent><leader>sd :Changes<cr>
+no <silent><leader>sw :Windows<cr>

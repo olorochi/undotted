@@ -1,0 +1,11 @@
+#! /bin/sh
+file=$XDG_RUNTIME_DIR/daptty 
+
+if [ ! -f $file ]; then
+    daptty&
+    until [ -f $file ]; do
+        sleep 0.1
+    done
+fi
+
+gdb --interpreter=dap -t $(cat $file)"
