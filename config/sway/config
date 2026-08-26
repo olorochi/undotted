@@ -12,10 +12,10 @@ set $right l
 for_window [title="swayfloat"] floating enable
 for_window [floating] opacity 0.9
 
-output DP-1 resolution 1920x1080 position -1920,0
-output DP-2 resolution 2560x1440 position 0,0
-workspace 1:"DP-1" output DP-1
-workspace 1:"DP-2" output DP-2
+output eDP-1 resolution 1920x1080 position 0,0
+output HDMI-A-1 resolution 1920x1080 position 0,-1080
+workspace 1:"eDP-1" output eDP-1
+workspace 1:"HDMI-A-1" output HDMI-A-1
 
 # class                 border  backgr. text    indicator child_border
 client.focused          #333333 #191919 #ffffff #5c5c5c   #333333
@@ -35,9 +35,11 @@ input type:keyboard {
     xkb_layout us,ca
 }
 
-input type:pointer {
+input type:touchpad {
     accel_profile flat
-    pointer_accel 0.5
+    pointer_accel 0.8
+    natural_scroll true
+    dwt false
 }
 
 default_border $border

@@ -11,7 +11,7 @@ export FFLAGS="$COMMON_FLAGS"
 export RUSTFLAGS="$RUSTFLAGS -C target-cpu=native"
 
 export UID=$(id -u)
-export HOSTNAME=$(hostname)
+export HOSTNAME=$(cat /proc/sys/kernel/hostname)
 export PATH=~/scripts:$PATH
 export EDITOR=vim
 export PAGER="vim -R -"
@@ -30,5 +30,5 @@ export SAVEHIST=100000
 
 export ENV=$HOME/config/kshrc
 
-[[ $(tty) = "/dev/ttyv0" ]] && exec seatd-launch sway # !! EXEC !!
+[[ $(tty) = "/dev/tty1" ]] && exec sway # !! EXEC !!
 return 0

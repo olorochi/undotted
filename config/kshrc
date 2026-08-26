@@ -38,21 +38,39 @@ jobstats() {
   )
 
   if [ "$rc" -eq 0 ]; then
-    print "\033[32m${out:+$out:}$rc\033[0m"
+    print "$e\033[32m$e${out:+$out:}$rc$e\033[0m$e"
   else
-    print "\033[31m${out:+$out:}$rc\033[0m"
+    print "$e\033[31m$e${out:+$out:}$rc$e\033[0m$e"
   fi
 
   return "$rc"
 }
 
-PS1='[34m$USER[0m@[31m$HOSTNAME [33m$PWD [0m[$(jobstats)] > '
+osc7() {
+  local tmp="$PWD"
+  local enc
+  while [ -n "$tmp" ]; do
+    local cut="${tmp#?}"
+    local c="${tmp%"$cut"}"
+    case "$c" in
+      [-/:_.!\'\(\)~[:alnum:]] ) enc="$enc$c" ;;
+      * ) enc="$enc$(printf '%%%02X' """\"$c")"  ;;
+    esac
+    tmp="$cut"
+  done
+
+  printf "\033]7;file://%s%s\033\\" "$HOSTNAME" "$enc"
+}
+
+marker=$'\e]133;A\e\\'
+e=$'\1'
+PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$PWD $e\e[0m$e[$(jobstats)] > '
 set -o vi
 
 alias sudo='s'
-alias s='doas '
-alias su='doas su'
-alias se='doas $EDITOR'
+alias s='\sudo '
+alias su='s su'
+alias se='s $EDITOR'
 alias x='xargs'
 alias n='nice'
 alias nocorrect="$@"
@@ -61,7 +79,7 @@ alias kcd=kiss-cd
 alias kadd=kiss-adddep
 alias krem=kiss-remdep
 alias g='git'
-alias add='cd && ga $(cat gitlist) && cd -'
+alias add='cd && ga $(gls) && cd -'
 alias commit='cd && gc -m "Quick commit." && cd -'
 alias gcl='g clone'
 alias ghcl='github-clone'
@@ -141,7 +159,7 @@ function vw {
 }
 
 function connect {
-  wpa_passphrase $1 $2 | doas tee -a /etc/wpa_supplicant/wpa_supplicant.conf
+  wpa_passphrase $1 $2 | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf
 }
 
 function xat {
