@@ -14,7 +14,7 @@ export HOSTNAME=$(cat /proc/sys/kernel/hostname)
 export PATH=~/scripts:$PATH
 export EDITOR=vim
 export PAGER="vim -R -"
-export MANPAGER="less"
+export MANPAGER="vim -M +MANPAGER"
 
 export XDG_RUNTIME_DIR=/tmp/$(id -u)-runtime-dir
 if ! test -d "${XDG_RUNTIME_DIR}"; then

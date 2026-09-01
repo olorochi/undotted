@@ -140,6 +140,7 @@ alias wpa="wpa_cli"
 alias scan="wpa_cli scan > /dev/null && wpa_cli scan_results"
 alias pimp="pip"
 alias reload="exec $SHELL"
+alias less="$PAGER"
 
 function github-clone {
   for repo in $@; do
