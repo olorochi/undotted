@@ -1,0 +1,6 @@
+#!/bin/mksh
+
+bat=/sys/class/power_supply/BAT1
+while print "$(cat /proc/loadavg)  $(cat $bat/capacity)% [$(cut -c 1 $bat/status)]  $(date +'%Y-%m-%d %X')"
+do sleep 1
+done

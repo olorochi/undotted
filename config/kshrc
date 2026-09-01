@@ -68,19 +68,19 @@ PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$
 set -o vi
 
 alias sudo='s'
-alias s='\sudo '
+alias s='\doas '
 alias su='s su'
-alias se='s $EDITOR'
 alias x='xargs'
 alias n='nice'
 alias nocorrect="$@"
+alias p=pacman
 alias kys='export KISS_DEBUG=1'
 alias kcd=kiss-cd
 alias kadd=kiss-adddep
 alias krem=kiss-remdep
 alias g='git'
-alias add='cd && ga $(gls) && cd -'
-alias commit='cd && gc -m "Quick commit." && cd -'
+alias add='ga $(gls)'
+alias commit='gc -m "Quick commit."'
 alias gcl='g clone'
 alias ghcl='github-clone'
 alias ga='g add'
@@ -134,7 +134,6 @@ alias l="ls -lah --color=auto"
 alias grep="grep --color"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
-alias src=". src"
 alias w="w3m duckduckgo.com"
 alias wifi="doas rc-service wpa_supplicant_custom restart"
 alias wpa="wpa_cli"

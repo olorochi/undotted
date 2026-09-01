@@ -272,6 +272,7 @@ no <silent><c-w>c :tabc<cr>
 
 pa comment
 pa hlyank
+pa netrw
 ru ftplugin/man.vim
 
 call plug#begin()
