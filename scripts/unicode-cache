@@ -1,5 +1,0 @@
-#! /bin/sh
-perl -Mcharnames=full -C -e '
-   for $i (0xa0 .. 0xd7ff, 0xe000 .. 0x10ffff) {
-     printf "%c U+%04X %s\n", $i, $i, lc charnames::viacode $i
-   }' | zstd > ~/.cache/all-chars.zst

@@ -4,14 +4,14 @@ cache=~/.cache/all-chars.zst
 
 if ! [ -f $cache ]; then
   echo No cache found, building in background thread and aborting. 1>&2
-  perl -Mcharnames=full -C -e '
+  nohup perl -Mcharnames=full -C -e '
     for $i (0xa0 .. 0xd7ff, 0xe000 .. 0x10ffff) {
       printf "%c U+%04X %s\n", $i, $i, lc charnames::viacode $i
     }' 2>/dev/null | zstd >$cache &
-  return 1
+  exit
 fi
 
 codes=$(zstdcat $cache)
 if [ $? -eq 0 ]; then
-  echo $codes | fzf | awk '{printf "%s",substr($0,1,1)}'
+  printf '%s\n' "$codes" | fzf | awk '{printf "%s",substr($0,1,1)}'
 fi

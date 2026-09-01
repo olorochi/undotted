@@ -8,4 +8,4 @@ if [ ! -f $file ]; then
     done
 fi
 
-gdb --interpreter=dap -t $(cat $file)"
+gdb --interpreter=dap -tty "$(cat $file)"
