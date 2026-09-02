@@ -4,16 +4,11 @@ exec foot --server
 set $mod Mod4
 set $border pixel 1
 
-set $left h
-set $down j
-set $up k
-set $right l
-
 for_window [title="swayfloat"] floating enable
 for_window [floating] opacity 0.9
 
-output eDP-1 resolution 1920x1200 position 0,0
-output HDMI-A-1 resolution 1920x1080 position 0,-1200
+output eDP-1 background ~/img/dereality.jpg fill resolution 1920x1200 position 0,0
+output HDMI-A-1 background ~/img/disco.jpg fill resolution 1920x1080 position 0,-1200
 workspace 1:"eDP-1" output eDP-1
 workspace 1:"HDMI-A-1" output HDMI-A-1
 
@@ -52,7 +47,7 @@ floating_modifier $mod normal
 bindsym --no-repeat $mod+q exec footclient
 bindsym --no-repeat $mod+Shift+q exec foot
 bindsym --no-repeat $mod+w exec librewolf
-bindsym --no-repeat $mod+u exec $term -T swayfloat cpunicode
+bindsym --no-repeat $mod+u exec footclient -T swayfloat sh -c 'unicode | wl-copy'
 
 bindsym --no-repeat $mod+c kill
 bindsym --no-repeat $mod+Shift+r reload
@@ -64,15 +59,15 @@ bindsym --no-repeat $mod+Alt+m exec powerctl reboot
 bindsym --no-repeat $mod+i border normal
 bindsym --no-repeat $mod+Shift+i border $border
 
-bindsym $mod+$left focus left
-bindsym $mod+$down focus down
-bindsym $mod+$up focus up
-bindsym $mod+$right focus right
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
 
-bindsym $mod+Shift+$left move left
-bindsym $mod+Shift+$down move down
-bindsym $mod+Shift+$up move up
-bindsym $mod+Shift+$right move right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
 bindsym --no-repeat $mod+Up focus output up
 bindsym --no-repeat $mod+Down focus output down
@@ -122,21 +117,21 @@ bindsym XF86MonBrightnessUp exec brightnessctl s +5%
 
 bindsym --no-repeat $mod+p mode "-- MPD --"
 mode "-- MPD --" {
-    bindsym --no-repeat $left exec mpc prev
-    bindsym --no-repeat $right exec mpc next
+    bindsym --no-repeat h exec mpc prev
+    bindsym --no-repeat l exec mpc next
     bindsym --no-repeat Space exec mpc toggle
     bindsym --no-repeat p exec mpd-album-shuffle play; mpc play
-    bindsym $down exec mpc volume -5
-    bindsym $up exec mpc volume +5
+    bindsym j exec mpc volume -5
+    bindsym k exec mpc volume +5
     bindsym Escape mode "default"
 }
 
 bindsym --no-repeat $mod+y mode "-- RESIZE --"
 mode "-- RESIZE --" {
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
+    bindsym h resize shrink width 10px
+    bindsym j resize grow height 10px
+    bindsym k resize shrink height 10px
+    bindsym l resize grow width 10px
 
     bindsym Escape mode "default"
 }

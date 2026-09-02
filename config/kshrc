@@ -112,11 +112,11 @@ alias gg='g grep'
 alias gds='g describe'
 alias gt="g tag --sort='-*authordate'"
 alias gre='g remote'
-alias gu='gch tags/$(gt --sort="-*authordate" | head -n 1)'
-alias gfu='gch tags/$(gt --sort="-*authordate" | fzf)'
+alias gu='gch tags/$(gt | head -n 1)'
+alias gfu='gch tags/$(gt | fzf)'
 alias py='python3'
 alias ff='fastfetch'
-alias h='history $HISTSIZE | tac | fzf'
+alias h='fc -s $(fc -rl 0 | fzf | cut -f 1)'
 alias rep='perf report'
 alias la='ls -a'
 alias fuck='eval "sudo $(fc -ln -1)"'
@@ -131,7 +131,7 @@ alias halt="powerctl halt"
 alias ls="ls --color=auto"
 alias la="ls -a --color=auto"
 alias l="ls -lah --color=auto"
-alias grep="grep --color"
+alias grep="grep --color=auto"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
 alias w="w3m duckduckgo.com"

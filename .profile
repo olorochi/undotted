@@ -1,9 +1,6 @@
-r=/home/olorochi/repos
-export KISS_PATH=$r/local/repo/extra:$r/local/personal:$r/local/school:$r/repo/core:$r/repo/extra:$r/repo/wayland:$r/community/community
-
-export MAKEFLAGS="-j 4"
-export SAMUFLAGS="-j 4"
-export COMMON_FLAGS="-O2 -pipe -march=alderlake -mno-cldemote -mno-kl -mno-pconfig -mno-sgx -mno-widekl -mshstk"
+export MAKEFLAGS="-j 12"
+export SAMUFLAGS="-j 12"
+export COMMON_FLAGS="-O2 -pipe -march=native"
 export CFLAGS="$COMMON_FLAGS"
 export CXXFLAGS="$COMMON_FLAGS"
 export FCFLAGS="$COMMON_FLAGS"
@@ -12,6 +9,7 @@ export RUSTFLAGS="$RUSTFLAGS -C target-cpu=native"
 
 export HOSTNAME=$(cat /proc/sys/kernel/hostname)
 export PATH=~/scripts:$PATH
+
 export EDITOR=vim
 export PAGER="vim -R -"
 export MANPAGER="vim -M +MANPAGER"
