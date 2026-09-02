@@ -27,5 +27,5 @@ export SAVEHIST=100000
 export ENV=$HOME/config/kshrc
 export XDG_CONFIG_HOME=~/config
 
-[[ $(tty) = "/dev/tty1" ]] && exec sway # !! EXEC !!
+[[ $(tty) = "/dev/tty1" ]] && exec dbus-launch sway # !! EXEC !!
 return 0
