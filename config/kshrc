@@ -38,11 +38,12 @@ jobstats() {
   )
 
   if [ "$rc" -eq 0 ]; then
-    print "$e\033[32m$e${out:+$out:}$rc$e\033[0m$e"
+    print -n "$e\033[32m$e"
   else
-    print "$e\033[31m$e${out:+$out:}$rc$e\033[0m$e"
+    print -n "$e\033[31m$e"
   fi
 
+  print "${out:+$out:}$rc$e\033[0m$e"
   return "$rc"
 }
 
@@ -129,8 +130,8 @@ alias reboot="powerctl reboot"
 alias poweroff="powerctl poweroff"
 alias halt="powerctl halt"
 alias ls="ls --color=auto"
-alias la="ls -a --color=auto"
-alias l="ls -lah --color=auto"
+alias la="ls -a"
+alias l="ls -lah"
 alias grep="grep --color=auto"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
@@ -230,6 +231,10 @@ function kiss-adddep {
 function kiss-remdep {
   grep -v ^cbindgen[\ $] depends > depends_remdep_tmp
   mv depends{_remdep_tmp,}
+}
+
+function daemon {
+  nohup $@ &>>$XDG_RUNTIME_DIR/$1 &
 }
 
 # function info {

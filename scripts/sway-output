@@ -1,0 +1,2 @@
+#! /bin/sh
+swaymsg -t get_outputs | jq ".[] | select(.focused).name"

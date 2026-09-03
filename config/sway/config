@@ -47,6 +47,7 @@ floating_modifier $mod normal
 bindsym --no-repeat $mod+q exec footclient
 bindsym --no-repeat $mod+Shift+q exec foot
 bindsym --no-repeat $mod+w exec librewolf
+bindsym --no-repeat $mod+e exec libreoffice
 bindsym --no-repeat $mod+u exec footclient -T swayfloat sh -c 'unicode | wl-copy'
 
 bindsym --no-repeat $mod+c kill

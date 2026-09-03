@@ -1,3 +1,2 @@
 #! /bin/sh
-output=$(swaymsg -t get_outputs | jq ".[] | select(.focused).name")
-swaymsg workspace $1:$output
+swaymsg workspace $1:$(sway-output)
