@@ -37,14 +37,6 @@ def g:FindProjRoot(): string
     return p
 enddef
 
-def g:GetProjKey(root: string, key: string): list<string>
-    return readfile(root .. ".vim/" .. key)
-enddef
-
-def g:GetFirstProjKey(root: string, key: string): string
-    return readfile(root .. ".vim/" .. key, "", 1)[0]
-enddef
-
 def g:ExpandRoot(root: string, s: string): string
     return substitute(s, "%[^%]", root, "g")
 enddef
@@ -68,31 +60,6 @@ enddef
 def g:LogInQf(root: string)
     exec "cg " .. g:LogPath(root)
     cw
-enddef
-
-def g:Run(root: string)
-    var path = g:ExpandRoot(root, g:GetFirstProjKey(root, "run"))
-    vimspector#LaunchWithSettings({"Path": path, "Cwd": fnamemodify(path, ":h")})
-    ec path
-enddef
-
-def g:ContinueDbg()
-    var new: bool
-    try
-        new = py3eval("_vimspector_session._connection is None")
-    catch
-        new = true
-    endtry
-
-    if (new)
-        var root = g:FindProjRoot()
-        g:Make(root)
-        if (v:shell_error == 0)
-            g:Run(root)
-        endif
-    else
-        vimspector#Continue()
-    endif
 enddef
 
 def g:CleanBufs()
@@ -207,50 +174,49 @@ so $MYVIMDIR/darkmax.vim
 &t_EI = "\e[2 q"
 au VimEnter * sil! !echo -ne "\e[2 q" | redraw!
 
-se nu
-se rnu
-se is
-se acd
-se ai
-se ci
-se ar
-se hid
+se number
+se relativenumber
+se incsearch
+se autochdir
+se autoindent
+se copyindent
+se autoread
+se hidden
 se nowrap
-se cdh
-se cul
-se et
-se top
-se udf
-se sr
-se sb
-se spr
-se spr
-se scs
-se sts=-1
-se ts=4
-se sw=4
-se so=5
-se siso=10
-se culopt=number
+se cdhome
+se cursorline
+se expandtab
+se tildeop
+se undofile
+se shiftround
+se splitbelow
+se splitright
+se smartcase
+se softtabstop=-1
+se tabstop=4
+se shiftwidth=4
+se scrolloff=5
+se sidescrolloff=10
+se cursorlineopt=number
 se path+=**
-se cpm=wayland
-se fdm=indent
-se nofen
-se uc=50
-se ut=500
+se clipmethod=wayland
+se foldmethod=indent
+se nofoldenable
+se updatecount=50
+se updatetime=500
 se list
-se lcs=tab:»\ ,space:·
-se stl=%n:\ %{getcwd()}\ %f\ %{%g:FileInfo()%}\ %h%w%m%r%=%y\ %-12.(%l:%c%V/%L%)\ %-3.P%<
-se ls=2
-se cot=fuzzy,menuone,noselect,popup
-se vi=<10000,'200
-se hi=1000
-se ve=all
-se dir=$XDG_RUNTIME_DIR
-se udir=~/.cache/vim/undo
-se shcf=-ic
-se shm=acT
-se nosmd
+se listchars=tab:»\ ,space:·
+se statusline=%n:\ %{getcwd()}\ %f\ %{%g:FileInfo()%}\ %h%w%m%r%=%y\ %-12.(%l:%c%V/%L%)\ %-3.P%<
+se laststatus=2
+se completeopt=fuzzy,menuone,noselect,popup
+se viminfo=<10000,'200
+se history=1000
+se virtualedit=all
+se directory=$XDG_RUNTIME_DIR
+se undodir=~/.cache/vim/undo
+se shellcmdflag=-ic
+se shortmess=acT
+se showmode
 
 g:mapleader = " "
 g:maplocalleader = "\\"
@@ -285,28 +251,13 @@ Plug 'airblade/vim-gitgutter'
 Plug 'unblevable/quick-scope'
 Plug 'jiangmiao/auto-pairs'
 Plug 'yegappan/lsp'
-Plug 'puremourning/vimspector'
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf'
 call plug#end()
 
 au User LspSetup call LspSetup()
 
-g:vimspector_base_dir = $MYVIMDIR .. "vimspector"
-# g:vimspector_log_file = expand('~/.vimspector.log')
-# g:vimspector_log_level = 'TRACE'
-
 g:gitgutter_sign_priority = 1
-sign define vimspectorBP text=B\  texthl=WarningMsg priority=100
-sign define vimspectorBPCond text=C\  texthl=WarningMsg priority=100
-sign define vimspectorBPLog text=L\  texthl=SpellRare priority=100
-sign define vimspectorBPDisabled text=P\  texthl=LineNr priority=100
-sign define vimspectorPC text=>\  texthl=CursorLineNr linehl=CursorLine priority=100
-sign define vimspectorPCBP text=B> texthl=CursorLineNr linehl=CursorLine priority=100
-sign define vimspectorNonActivePC linehl=DiffAdd priority=100
-sign define vimspectorCurrentThread text=>\  texthl=CursorLineNr linehl=CursorLine priority=100
-sign define vimspectorCurrentFrame text=>\  texthl=Special linehl=CursorLine priority=100
-
 no <silent>[q :cp<cr>
 no <silent>[Q :cla<cr>
 no <silent>]q :cn<cr>

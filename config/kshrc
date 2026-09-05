@@ -1,30 +1,18 @@
 #! /bin/ksh
 
-jobstats() {
+function jobstats {
   rc=$?
   out=$(
-    jobs -l 2>/dev/null |
+    jobs 2>/dev/null |
     awk '
-    BEGIN { active=inactive=0; current="-" }
+    BEGIN { active=inactive=0; }
 
     /^\[/ {
-      job=$1
-      sub(/^\[/, "", job)
-      sub(/\].*/, "", job)
-
       if ($2 == "+")
-        current=job
+        current=$1
+        gsub(/[\[\]]/, "", current)
 
-      state=""
-      for (i=1; i<=NF; i++) {
-        if ($i == "Running" || $i == "Stopped" ||
-            $i == "Done" || $i == "Terminated" ||
-            $i == "Killed") {
-          state=$i
-          break
-        }
-      }
-
+      state=$3
       if (state == "Running")
         active++
       else
@@ -47,7 +35,7 @@ jobstats() {
   return "$rc"
 }
 
-osc7() {
+function osc7 {
   local tmp="$PWD"
   local enc
   while [ -n "$tmp" ]; do
@@ -66,6 +54,7 @@ osc7() {
 marker=$'\e]133;A\e\\'
 e=$'\1'
 PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$PWD $e\e[0m$e[$(jobstats)] > '
+CDPATH=".:$HOME/code"
 set -o vi
 
 alias sudo='s'
@@ -73,12 +62,14 @@ alias s='\doas '
 alias su='s su'
 alias x='xargs'
 alias n='nice'
-alias nocorrect="$@"
 alias p=pacman
+alias y=yay
 alias kys='export KISS_DEBUG=1'
 alias kcd=kiss-cd
 alias kadd=kiss-adddep
 alias krem=kiss-remdep
+alias f='fzf'
+alias fr='f --raw --bind change:best'
 alias g='git'
 alias add='ga $(gls)'
 alias commit='gc -m "Quick commit."'
@@ -93,6 +84,7 @@ alias gp='g push'
 alias gf='g fetch'
 alias gpl='g pull'
 alias gc='g commit'
+alias gfc='g log --oneline | fr | cut -F 1'
 alias gr='g restore'
 alias grs='g reset'
 alias grss='g reset --soft'
@@ -117,9 +109,8 @@ alias gu='gch tags/$(gt | head -n 1)'
 alias gfu='gch tags/$(gt | fzf)'
 alias py='python3'
 alias ff='fastfetch'
-alias h='fc -s $(fc -rl 0 | fzf | cut -f 1)'
+alias h='fc $(fc -rl 0 | fzf | cut -F 1)'
 alias rep='perf report'
-alias la='ls -a'
 alias fuck='eval "sudo $(fc -ln -1)"'
 alias zigstd="zig std --no-open-browser | head -n 1 | xargs librewolf"
 alias swayconf='vim ~/config/sway/config'
@@ -136,12 +127,16 @@ alias grep="grep --color=auto"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
 alias w="w3m duckduckgo.com"
-alias wifi="doas rc-service wpa_supplicant_custom restart"
-alias wpa="wpa_cli"
-alias scan="wpa_cli scan > /dev/null && wpa_cli scan_results"
 alias pimp="pip"
 alias reload="exec $SHELL"
 alias less="$PAGER"
+alias wlan0="iwctl station wlan0"
+alias connect="wlan0 connect"
+alias scan="wlan0 scan && wlan0 get-networks"
+
+alias -d vim="$HOME/config/vim/"
+alias -d sv="/etc/runit/sv/"
+alias -d service="/run/runit/service/"
 
 function github-clone {
   for repo in $@; do
@@ -149,22 +144,12 @@ function github-clone {
   done
 }
 
-# fzfiles was a fzf based file browser I had made before accidentally deleting
-# my home partition.
-function fzfiles {
-  cd "$(command fzfiles $@ | tail -n 1)"
-}
-
 function vw {
   $EDITOR $(whence $@)
 }
 
-function connect {
-  wpa_passphrase $1 $2 | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf
-}
-
 function xat {
-  which $@ | xargs cat
+  whence -p $@ | xargs cat
 }
 
 function v {
@@ -234,7 +219,18 @@ function kiss-remdep {
 }
 
 function daemon {
-  nohup $@ &>>$XDG_RUNTIME_DIR/$1 &
+  log=$XDG_RUNTIME_DIR/daemon/$1
+  mkdir -p $log
+  nohup $@ >$log/out 2>$log/err &
+}
+
+function temp {
+    t=$(mktemp) || return 1
+    cat >"$t" || {
+        rm -f "$t"
+        return 2
+    }
+    printf '%s\n' "$t"
 }
 
 # function info {

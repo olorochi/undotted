@@ -10,3 +10,5 @@
 [color]
 	ui = auto
 	pager = false
+[pull]
+	rebase = true

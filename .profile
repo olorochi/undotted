@@ -13,6 +13,7 @@ export PATH=~/scripts:$PATH
 export EDITOR=vim
 export PAGER="vim -R -"
 export MANPAGER="vim -M +MANPAGER"
+export FCEDIT="vim"
 
 export XDG_RUNTIME_DIR=/tmp/$(id -u)-runtime-dir
 if ! test -d "${XDG_RUNTIME_DIR}"; then
