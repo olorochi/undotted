@@ -56,6 +56,7 @@ bindsym --no-repeat $mod+Shift+r reload
 bindsym --no-repeat $mod+m exec swaymsg exit
 bindsym --no-repeat $mod+Shift+m exec powerctl poweroff
 bindsym --no-repeat $mod+Alt+m exec powerctl reboot
+bindsym --no-repeat $mod+Backspace exec swaylock -eF
 
 bindsym --no-repeat $mod+i border normal
 bindsym --no-repeat $mod+Shift+i border $border
@@ -115,6 +116,9 @@ bindsym $mod+x focus child
 bindsym --no-repeat Print exec screenshot
 bindsym XF86MonBrightnessDown exec brightnessctl s 5%-
 bindsym XF86MonBrightnessUp exec brightnessctl s +5%
+bindsym XF86AudioRaiseVolume exec amixer sset Master 5%+
+bindsym XF86AudioLowerVolume exec amixer sset Master 5%-
+bindsym XF86AudioMute exec amixer sset Master toggle
 
 bindsym --no-repeat $mod+p mode "-- MPD --"
 mode "-- MPD --" {

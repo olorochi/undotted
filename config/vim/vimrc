@@ -37,10 +37,6 @@ def g:FindProjRoot(): string
     return p
 enddef
 
-def g:ExpandRoot(root: string, s: string): string
-    return substitute(s, "%[^%]", root, "g")
-enddef
-
 def g:LogPath(root: string): string
     return root .. ".vim/build_log"
 enddef
@@ -48,13 +44,14 @@ enddef
 def g:Make(root: string)
     ec "Compiling..." # TODO: don't hang
     var log = g:LogPath(root)
-    system(root ..  ".vim/make &>" .. log)
+    job_start(root ..  ".vim/make &>" .. log, {"close_cb": (_) => {
+        echom ("Child exited with [" .. v:shell_error .. "]")
+        if (v:shell_error != 0) 
+            exe "cg " .. log
+            cw
+        endif
+    }})
 
-    echom ("Child exited with [" .. v:shell_error .. "]")
-    if (v:shell_error != 0) 
-        exe "cg " .. log
-        cw
-    endif
 enddef
 
 def g:LogInQf(root: string)
@@ -195,7 +192,7 @@ se smartcase
 se softtabstop=-1
 se tabstop=4
 se shiftwidth=4
-se scrolloff=5
+se scrolloff=10
 se sidescrolloff=10
 se cursorlineopt=number
 se path+=**
@@ -216,11 +213,12 @@ se directory=$XDG_RUNTIME_DIR
 se undodir=~/.cache/vim/undo
 se shellcmdflag=-ic
 se shortmess=acT
-se showmode
+se noshowmode
 
 g:mapleader = " "
 g:maplocalleader = "\\"
 
+g:sneak#label = 1
 g:netrw_home = "~/.cache/vim"
 
 no 0 ^
@@ -235,6 +233,8 @@ nno Y y$
 ino <c-space> <c-x><c-o>
 no <leader>q :call system("footclient&")<cr>
 no <silent><c-w>c :tabc<cr>
+no <silent><leader>m :call Make(FindProjRoot())<cr>
+no <silent><f6> :call Make(FindProjRoot())<cr>
 
 pa comment
 pa hlyank
@@ -253,6 +253,8 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'yegappan/lsp'
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf'
+Plug 'wellle/context.vim'
+Plug 'justinmk/vim-sneak'
 call plug#end()
 
 au User LspSetup call LspSetup()
@@ -276,29 +278,6 @@ om ic <Plug>(GitGutterTextObjectInnerPending)
 om ac <Plug>(GitGutterTextObjectOuterPending)
 xm ic <Plug>(GitGutterTextObjectInnerVisual)
 xm ac <Plug>(GitGutterTextObjectOuterVisual)
-
-no [b <plug>VimspectorJumpToPreviousBreakpoint
-no ]b <plug>VimspectorJumpToNextBreakpoint
-no <leader>dw <plug>VimspectorJumpToProgramCounter
-no <leader>dW <plug>VimspectorJumpGoToCurrentLine
-no <leader>b <plug>VimspectorToggleBreakpoint
-no <leader>B <plug>VimspectorAddFunctionBreakpoint
-no <leader>db <plug>VimspectorToggleConditionalBreakpoint
-no <leader>dl <plug>VimspectorBreakpoints
-no <leader>ds <plug>VimspectorDisassemble
-no <leader>dk <plug>VimspectorBalloonEval
-no <down> <plug>VimspectorUpFrame
-no <up> <plug>VimspectorDownFrame
-no <silent><f2> :call vimspector#Pause()<cr>
-no <f4> <plug>VimspectorStop
-no <silent><f5> :call ContinueDbg()<cr>
-no <silent><f6> :call Make(FindProjRoot())<cr>
-no <silent><f7> :call Run(FindProjRoot())<cr>
-no <silent><leader>xc :call LogInQf(FindProjRoot())<cr>:cope<cr>
-no <f9> <plug>VimspectorRunToCursor
-no <f10> <plug>VimspectorStepOver
-no <f11> <plug>VimspectorStepInto
-no <f12> <plug>VimspectorStepOut
 
 no <silent><leader>sf :Files<cr>
 no <silent><leader>sv :Files $MYVIMDIR<cr>

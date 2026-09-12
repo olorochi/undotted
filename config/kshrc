@@ -51,9 +51,20 @@ function osc7 {
   printf "\033]7;file://%s%s\033\\" "$HOSTNAME" "$enc"
 }
 
+function spwd {
+  pwd=${PWD/#${HOME@Q}/\~}
+  for home in $(alias -d); do
+    IFS=\= read short long <<<"$home"
+    tmp=${PWD/#${long@Q}/\~${short@Q}}
+    [ ${%tmp} -lt ${%pwd} ] && pwd="$tmp"
+  done
+
+  echo $pwd
+}
+
 marker=$'\e]133;A\e\\'
 e=$'\1'
-PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$PWD $e\e[0m$e[$(jobstats)] > '
+PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$(spwd) $e\e[0m$e[$(jobstats)] > '
 CDPATH=".:$HOME/code"
 set -o vi
 
@@ -78,7 +89,7 @@ alias ghcl='github-clone'
 alias ga='g add'
 alias gs='g status'
 alias gsh='g show'
-alias gw='g switch'
+alias gsw='g switch'
 alias gl='g log --stat'
 alias gp='g push'
 alias gf='g fetch'
@@ -131,12 +142,15 @@ alias pimp="pip"
 alias reload="exec $SHELL"
 alias less="$PAGER"
 alias wlan0="iwctl station wlan0"
-alias connect="wlan0 connect"
+alias connect="wlan0 scan && wlan0 connect"
 alias scan="wlan0 scan && wlan0 get-networks"
+alias c="wl-copy"
 
-alias -d vim="$HOME/config/vim/"
-alias -d sv="/etc/runit/sv/"
-alias -d service="/run/runit/service/"
+alias -d vim="$HOME/config/vim"
+alias -d sv="/etc/runit/sv"
+alias -d service="/run/runit/service"
+alias -d share="/usr/share"
+alias -d log="/var/log"
 
 function github-clone {
   for repo in $@; do
