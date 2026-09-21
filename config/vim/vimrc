@@ -42,9 +42,12 @@ def g:LogPath(root: string): string
 enddef
 
 def g:Make(root: string)
-    ec "Compiling..." # TODO: don't hang
     var log = g:LogPath(root)
-    job_start(root ..  ".vim/make &>" .. log, {"close_cb": (_) => {
+    job_start(root ..  ".vim/make &>" .. log, {
+        "cwd": root,
+        "out_io": "file",
+        "out_name": log,
+        "close_cb": (_) => {
         echom ("Child exited with [" .. v:shell_error .. "]")
         if (v:shell_error != 0) 
             exe "cg " .. log
@@ -114,6 +117,11 @@ def g:LspSetup()
         name: 'zls',
         filetype: 'zig',
         path: 'zls'
+    },
+    {
+        name: 'pylsp',
+        filetype: 'python',
+        path: 'pylsp'
     },
     # {
     #     name: 'csharp-ls',
