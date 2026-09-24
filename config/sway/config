@@ -1,4 +1,4 @@
-# exec mpd-launcher
+exec pidof mpd || mpd
 exec foot --server
 
 set $mod Mod4
@@ -51,6 +51,7 @@ bindsym --no-repeat $mod+q exec $term
 bindsym --no-repeat $mod+Shift+q exec foot
 bindsym --no-repeat $mod+w exec librewolf
 bindsym --no-repeat $mod+e exec libreoffice
+bindsym --no-repeat $mod+n exec nicotine
 bindsym --no-repeat $mod+u exec $float sh -c 'unicode | wl-copy'
 
 bindsym --no-repeat $mod+c kill
@@ -114,7 +115,6 @@ bindsym --no-repeat $mod+minus scratchpad show
 
 bindsym $mod+a focus parent
 bindsym $mod+x focus child
-
 
 bindsym --no-repeat Print exec screenshot
 bindsym XF86MonBrightnessDown exec brightnessctl s 5%-
