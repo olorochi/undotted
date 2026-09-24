@@ -44,18 +44,20 @@ seat * hide_cursor 750
 
 floating_modifier $mod normal
 
-bindsym --no-repeat $mod+q exec footclient
+set $term footclient
+set $float footclient -T swayfloat
+
+bindsym --no-repeat $mod+q exec $term
 bindsym --no-repeat $mod+Shift+q exec foot
 bindsym --no-repeat $mod+w exec librewolf
 bindsym --no-repeat $mod+e exec libreoffice
-bindsym --no-repeat $mod+u exec footclient -T swayfloat sh -c 'unicode | wl-copy'
+bindsym --no-repeat $mod+u exec $float sh -c 'unicode | wl-copy'
 
 bindsym --no-repeat $mod+c kill
 bindsym --no-repeat $mod+Shift+r reload
 
 bindsym --no-repeat $mod+m exec swaymsg exit
-bindsym --no-repeat $mod+Shift+m exec powerctl poweroff
-bindsym --no-repeat $mod+Alt+m exec powerctl reboot
+bindsym --no-repeat $mod+Shift+m exec doas kill -2 1
 bindsym --no-repeat $mod+Shift+Backspace exec swaylock -eF
 bindsym --no-repeat $mod+Backspace exec swaymsg "output eDP-1 power toggle"
 
@@ -126,6 +128,8 @@ mode "-- MPD --" {
     bindsym --no-repeat h exec mpc prev
     bindsym --no-repeat l exec mpc next
     bindsym --no-repeat Space exec mpc toggle
+    bindsym --no-repeat u exec mpd-playlist
+    bindsym --no-repeat f exec $float mpd-fzf; mode "default"
     bindsym --no-repeat p exec mpd-album-shuffle play; mpc play
     bindsym j exec mpc volume -5
     bindsym k exec mpc volume +5

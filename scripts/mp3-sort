@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -e
+
+if [ "$#" -ne 2 ]; then
+    printf 'usage: %s INPUT_DIR OUTPUT_DIR\n' "$0" >&2
+    exit 1
+fi
+
+input=$1
+output=$2
+
+find "$input" -type f -iname '*.mp3' |
+while IFS= read -r file; do
+    metadata=$(ffprobe \
+    -v error \
+    -show_entries format_tags=artist,album,track,title,date \
+    -of default=noprint_wrappers=1 \
+    "$file")
+
+    while IFS='=' read -r key value; do
+        case $key in
+            TAG:artist) artist=$value ;;
+            TAG:album)  album=$value ;;
+            TAG:track)  track=$value ;;
+            TAG:title)  title=$value ;;
+            TAG:date)  date=$value ;;
+        esac
+    done <<EOF
+$metadata
+EOF
+
+    [ -n "$artist" ] || artist='Unknown Artist'
+    [ -n "$album" ] || album='Unknown Album'
+    [ -n "$track" ] || track=0
+    [ -n "$title" ] || title=$(basename "$file" .mp3)
+    [ -n "$date" ] || date=""
+
+    track=${track%%/*}
+    title=$(printf '%s' "$title" | tr '/' '-')
+
+    directory="$output/$artist/[$date] $album"
+    mkdir -p "$directory"
+
+    mv -- "$file" "$directory/$track. $title.mp3"
+done

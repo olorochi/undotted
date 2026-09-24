@@ -1,6 +1,5 @@
 #! /bin/sh
 
-~/Music/sort.sh
 mpc update --wait
 
 read -r time state < <(mpc status "%currenttime% %state%")
