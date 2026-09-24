@@ -123,6 +123,12 @@ def g:LspSetup()
         filetype: 'python',
         path: 'pylsp'
     },
+    {
+        name: 'ts-ls',
+        filetype: ['typescript', 'javascript'],
+        path: 'typescript-language-server',
+        args: ['--stdio']
+    },
     # {
     #     name: 'csharp-ls',
     #     filetype: 'cs',

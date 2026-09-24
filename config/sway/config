@@ -5,17 +5,17 @@ set $mod Mod4
 set $border pixel 1
 
 for_window [title="swayfloat"] floating enable
-for_window [floating] opacity 0.9
+for_window [floating] opacity 0.8
 
 output eDP-1 background ~/img/dereality.jpg fill resolution 1920x1200 position 0,0
-output HDMI-A-1 background ~/img/disco.jpg fill resolution 1920x1080 position 0,-1200
+output HDMI-A-1 background ~/img/disco.jpg fill resolution 1920x1080 position 0,-1080
 workspace 1:"eDP-1" output eDP-1
 workspace 1:"HDMI-A-1" output HDMI-A-1
 
 # class                 border  backgr. text    indicator child_border
-client.focused          #333333 #191919 #ffffff #5c5c5c   #333333
-client.focused_inactive #111111 #191919 #686868 #111111   #111111
-client.unfocused        #111111 #191919 #686868 #111111   #111111
+client.focused          #333333 #191919 #ffffff #666666   #444444
+client.focused_inactive #111111 #191919 #686868 #222222   #222222
+client.unfocused        #111111 #191919 #686868 #222222   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
 client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 client.background       #ffffff
@@ -56,7 +56,8 @@ bindsym --no-repeat $mod+Shift+r reload
 bindsym --no-repeat $mod+m exec swaymsg exit
 bindsym --no-repeat $mod+Shift+m exec powerctl poweroff
 bindsym --no-repeat $mod+Alt+m exec powerctl reboot
-bindsym --no-repeat $mod+Backspace exec swaylock -eF
+bindsym --no-repeat $mod+Shift+Backspace exec swaylock -eF
+bindsym --no-repeat $mod+Backspace exec swaymsg "output eDP-1 power toggle"
 
 bindsym --no-repeat $mod+i border normal
 bindsym --no-repeat $mod+Shift+i border $border
