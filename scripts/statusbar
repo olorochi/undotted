@@ -2,7 +2,7 @@
 
 bat=/sys/class/power_supply/BAT1
 while :; do
-    song=$(mpc current)
+    song="$(mpc current) $(mpc status %percenttime%)"
     load=$(cat /proc/loadavg)
     power="$(cat $bat/capacity)% [$(cut -c 1 $bat/status)]"
     ram=($(free -Lh))

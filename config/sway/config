@@ -126,8 +126,20 @@ bindsym XF86AudioMute exec amixer sset Master toggle
 
 bindsym --no-repeat $mod+p mode "-- MPD --"
 mode "-- MPD --" {
-    bindsym --no-repeat h exec mpc prev
-    bindsym --no-repeat l exec mpc next
+    bindsym --no-repeat 1 exec mpc seek 10%
+    bindsym --no-repeat 2 exec mpc seek 20%
+    bindsym --no-repeat 3 exec mpc seek 30%
+    bindsym --no-repeat 4 exec mpc seek 40%
+    bindsym --no-repeat 5 exec mpc seek 50%
+    bindsym --no-repeat 6 exec mpc seek 60%
+    bindsym --no-repeat 7 exec mpc seek 70%
+    bindsym --no-repeat 8 exec mpc seek 80%
+    bindsym --no-repeat 9 exec mpc seek 90%
+    bindsym --no-repeat 0 exec mpc seek 0%
+    bindsym h exec mpc seek -5
+    bindsym l exec mpc seek +5
+    bindsym --no-repeat Shift+h exec mpc prev
+    bindsym --no-repeat Shift+l exec mpc next
     bindsym --no-repeat Space exec mpc toggle
     bindsym --no-repeat u exec mpd-playlist
     bindsym --no-repeat f exec $float mpd-fzf; mode "default"

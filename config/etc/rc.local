@@ -1,7 +1,2 @@
-# /etc/rc.local -- rc.local for Artix Linux
-#
-# Enter your custom commands here. It will be executed on stage 2
-# before running services.
-
 brightnessctl s 70%
 alsactl restore

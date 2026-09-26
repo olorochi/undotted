@@ -29,7 +29,7 @@ export ENV=$HOME/config/kshrc
 export XDG_CONFIG_HOME=~/config
 
 export MPD_HOST=$XDG_RUNTIME_DIR/mpd_socket
-export MPC_FORMAT='%track%. %title% (%time%) - %album% - %artist%'
+export MPC_FORMAT='%artist% - %album% - %track%. %title% (%time%)'
 
 [[ $(tty) = "/dev/tty1" ]] && exec dbus-launch sway # !! EXEC !!
 return 0
