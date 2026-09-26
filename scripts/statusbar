@@ -1,6 +1,12 @@
-#!/bin/mksh
+#!/bin/sh
 
 bat=/sys/class/power_supply/BAT1
-while print "$(cat /proc/loadavg)  $(cat $bat/capacity)% [$(cut -c 1 $bat/status)]  $(date +'%Y-%m-%d %X')"
-do sleep 1
+while :; do
+    song=$(mpc current)
+    load=$(cat /proc/loadavg)
+    power="$(cat $bat/capacity)% [$(cut -c 1 $bat/status)]"
+    ram=($(free -Lh))
+    date=$(date +'%Y-%m-%d %X')
+    echo "$song | $load | ${ram[*]} | $power | $date"
+    sleep 1
 done

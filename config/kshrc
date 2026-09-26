@@ -36,11 +36,10 @@ function jobstats {
 }
 
 function osc7 {
-  local tmp="$PWD"
-  local enc
+  tmp="$PWD"
   while [ -n "$tmp" ]; do
-    local cut="${tmp#?}"
-    local c="${tmp%"$cut"}"
+    cut="${tmp#?}"
+    c="${tmp%"$cut"}"
     case "$c" in
       [-/:_.!\'\(\)~[:alnum:]] ) enc="$enc$c" ;;
       * ) enc="$enc$(printf '%%%02X' """\"$c")"  ;;
@@ -55,7 +54,7 @@ function spwd {
   pwd=${PWD/#${HOME@Q}/\~}
   for home in $(alias -d); do
     IFS=\= read short long <<<"$home"
-    tmp=${PWD/#${long@Q}/\~${short@Q}}
+    tmp=${PWD/#${long/%\/}/\~${short@Q}}
     [ ${%tmp} -lt ${%pwd} ] && pwd="$tmp"
   done
 
@@ -76,16 +75,16 @@ alias n='nice'
 alias p=pacman
 alias y=yay
 alias kys='export KISS_DEBUG=1'
-alias kcd=kiss-cd
-alias kadd=kiss-adddep
-alias krem=kiss-remdep
+alias kcd=kiss_cd
+alias kadd=kiss_adddep
+alias krem=kiss_remdep
 alias f='fzf'
 alias fr='f --raw --bind change:best'
 alias g='git'
 alias add='ga $(gls)'
 alias commit='gc -m "Quick commit."'
 alias gcl='g clone'
-alias ghcl='github-clone'
+alias ghcl='github_clone'
 alias ga='g add'
 alias gs='g status'
 alias gsh='g show'
@@ -95,7 +94,7 @@ alias gp='g push'
 alias gf='g fetch'
 alias gpl='g pull'
 alias gc='g commit'
-alias gfc='g log --oneline | fr | cut -F 1'
+alias gfc='git_find_commit'
 alias gr='g restore'
 alias grs='g reset'
 alias grss='g reset --soft'
@@ -127,7 +126,6 @@ alias zigstd="zig std --no-open-browser | head -n 1 | xargs librewolf"
 alias swayconf='vim ~/config/sway/config'
 alias config='vim ~/config/kshrc && . ~/config/kshrc'
 alias profile='vim ~/.profile && . ~/.profile'
-alias za='zathura'
 alias reboot="powerctl reboot"
 alias poweroff="powerctl poweroff"
 alias halt="powerctl halt"
@@ -137,7 +135,6 @@ alias l="ls -lah"
 alias grep="grep --color=auto"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
-alias w="w3m duckduckgo.com"
 alias pimp="pip"
 alias reload="exec $SHELL"
 alias less="$PAGER"
@@ -146,17 +143,23 @@ alias connect="wlan0 connect"
 alias scan="wlan0 scan && wlan0 get-networks"
 alias c="wl-copy"
 alias rm="rm -I"
+alias etc="cp -rf ~/config/etc /"
 
-alias -d vim="$HOME/config/vim"
-alias -d sv="/etc/runit/sv"
-alias -d service="/run/runit/service"
-alias -d share="/usr/share"
-alias -d log="/var/log"
+alias -d vim="$HOME/config/vim/"
+alias -d sv="/etc/runit/sv/"
+alias -d service="/run/runit/service/"
+alias -d share="/usr/share/"
+alias -d log="/var/log/"
+alias -d etc="$HOME/config/etc/"
 
-function github-clone {
+function github_clone {
   for repo in $@; do
     git clone https://github.com/$repo
   done
+}
+
+function git_find_commit {
+  git log --oneline $@ | fr | cut -F 1
 }
 
 function vw {
@@ -174,10 +177,6 @@ function v {
     $EDITOR $@
   fi
 }
-
-# function clocs {
-#   git ls-files | { [ $# -ne 0 ] && grep $@ || cat } | xargs wc -l | sort -n
-# }
 
 # never again
 # function nuke {
@@ -219,16 +218,16 @@ function recf {
   flame
 }
 
-function kiss-cd {
+function kiss_cd {
   cd $(k s $1 | head -n 1)
 }
 
-function kiss-adddep {
+function kiss_adddep {
   printf '%s\n' $@ >> depends
   sort depends -o depends
 }
 
-function kiss-remdep {
+function kiss_remdep {
   grep -v ^cbindgen[\ $] depends > depends_remdep_tmp
   mv depends{_remdep_tmp,}
 }

@@ -53,6 +53,7 @@ bindsym --no-repeat $mod+w exec librewolf
 bindsym --no-repeat $mod+e exec libreoffice
 bindsym --no-repeat $mod+n exec nicotine
 bindsym --no-repeat $mod+u exec $float sh -c 'unicode | wl-copy'
+bindsym --no-repeat $mod+z exec $float alsamixer
 
 bindsym --no-repeat $mod+c kill
 bindsym --no-repeat $mod+Shift+r reload
