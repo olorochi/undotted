@@ -117,7 +117,8 @@ bindsym --no-repeat $mod+minus scratchpad show
 bindsym $mod+a focus parent
 bindsym $mod+x focus child
 
-bindsym --no-repeat Print exec screenshot
+bindsym --no-repeat Print exec sh -c "screenshot - | wl-copy"
+bindsym --no-repeat Shift+Print exec sh -c "screenshot ~/img/screenshots/$(date -Iseconds).png"
 bindsym XF86MonBrightnessDown exec brightnessctl s 5%-
 bindsym XF86MonBrightnessUp exec brightnessctl s +5%
 bindsym XF86AudioRaiseVolume exec amixer sset Master 5%+
