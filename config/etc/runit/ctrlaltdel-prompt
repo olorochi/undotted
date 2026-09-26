@@ -1,0 +1,38 @@
+#!/bin/sh
+
+while :; do
+    printf '%s\n' \
+        'p: poweroff' \
+        'r: reboot' \
+        's: suspend' \
+        'h: hibernate' \
+        'y: hybrid-sleep' \
+        'c: cancel' \
+
+    read -r -n 1 action
+    printf '\n'
+
+    case "$action" in
+        p)
+            exec poweroff
+            ;;
+        r)
+            exec reboot
+            break
+            ;;
+        s)
+            exec zzz
+            ;;
+        h)
+            exec zzz -z
+            ;;
+        y)
+            exec zzz -H
+            ;;
+        c)
+            clear
+            exit
+            ;;
+    esac
+    clear
+done

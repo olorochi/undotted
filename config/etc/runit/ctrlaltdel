@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+PATH=/usr/bin:/usr/sbin
+openvt -ws /etc/runit/ctrlaltdel-prompt
