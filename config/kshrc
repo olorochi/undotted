@@ -64,7 +64,6 @@ function spwd {
 marker=$'\e]133;A\e\\'
 e=$'\1'
 PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$(spwd) $e\e[0m$e[$(jobstats)] > '
-CDPATH=".:$HOME/code"
 set -o vi
 
 alias sudo='s'
@@ -126,9 +125,6 @@ alias zigstd="zig std --no-open-browser | head -n 1 | xargs librewolf"
 alias swayconf='vim ~/config/sway/config'
 alias config='vim ~/config/kshrc && . ~/config/kshrc'
 alias profile='vim ~/.profile && . ~/.profile'
-alias reboot="powerctl reboot"
-alias poweroff="powerctl poweroff"
-alias halt="powerctl halt"
 alias ls="ls --color=auto"
 alias la="ls -a"
 alias l="ls -lah"
@@ -152,10 +148,15 @@ alias -d share="/usr/share/"
 alias -d log="/var/log/"
 alias -d etc="$HOME/config/etc/"
 
+CDPATH=.
+for lang in $HOME/code/*; do
+  CDPATH+=":$lang"
+done
+
 function github_clone {
-  for repo in $@; do
-    git clone https://github.com/$repo
-  done
+  repo=$1
+  shift
+  git clone $@ https://github.com/$1
 }
 
 function git_find_commit {
@@ -214,7 +215,7 @@ function flame {
 }
 
 function recf {
-  rec $1
+  rec $@
   flame
 }
 

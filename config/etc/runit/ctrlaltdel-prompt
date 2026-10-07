@@ -10,7 +10,6 @@ while :; do
         'c: cancel' \
 
     read -r -n 1 action
-    printf '\n'
 
     case "$action" in
         p)

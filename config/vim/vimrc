@@ -269,6 +269,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf'
 Plug 'wellle/context.vim'
 Plug 'justinmk/vim-sneak'
+Plug 'digitaltoad/vim-pug'
 call plug#end()
 
 au User LspSetup call LspSetup()
