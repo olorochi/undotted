@@ -18,57 +18,64 @@ def g:Warn(mes: string)
     echoh WarningMsg | echom mes | echoh None
 enddef
 
-g:LastVimRoot = v:null
-def g:FindProjRoot(): string
-    var p = getcwd()
-    while (!isdirectory(p .. "/.vim"))
-        if (p == "/")
-            if (g:LastVimRoot == null)
-                throw "Could not find root"
-            else
-                return g:LastVimRoot
-            endif
-        endif
-        p = fnamemodify(p, ":h")
-    endwhile
-    p = p .. "/"
-    g:LastVimRoot = p
+def g:Script(script: string)
+    const root = fnamemodify(finddir(".vim", getcwd() .. ";"), ":h")
+    const bufpath = script .. "://" .. fnamemodify(root, ":p")
+    var buf = bufnr(bufpath)
 
-    return p
-enddef
+    if buf == -1
+        buf = bufadd(bufpath)
+        bufload(buf)
+    endif
 
-def g:LogPath(root: string): string
-    return root .. ".vim/build_log"
-enddef
+    setbufvar(buf, "&buftype", "nofile")
+    setbufvar(buf, "&bufhidden", "hide")
+    setbufvar(buf, "&swapfile", false)
+    deletebufline(buf, 1, "$")
 
-def g:Make(root: string)
-    var log = g:LogPath(root)
-    job_start(root ..  ".vim/make &>" .. log, {
+    var cmd = root .. "/.vim/" .. script .. " " .. shellescape(expand("%:p"))
+
+    job_start(cmd, {
         "cwd": root,
-        "out_io": "file",
-        "out_name": log,
-        "close_cb": (_) => {
-        echom ("Child exited with [" .. v:shell_error .. "]")
-        if (v:shell_error != 0) 
-            exe "cg " .. log
-            cw
-        endif
-    }})
+        "out_io": "buffer",
+        "out_buf": buf,
+        "err_io": "buffer",
+        "err_buf": buf,
+        "exit_cb": (_, status) => {
+            echom "Child exited with [" .. status .. "]."
+        }
+    })
 
+    if empty(win_findbuf(buf))
+        execute "sbuffer " .. buf
+    endif
 enddef
 
-def g:LogInQf(root: string)
-    exec "cg " .. g:LogPath(root)
-    cw
+augroup ProjectCwd
+    autocmd!
+    autocmd BufEnter * call s:ProjectCwd()
+augroup END
+
+def ProjectCwd()
+    if &buftype == "nofile"
+        return
+    endif
+    if &filetype == "netrw"
+        execute "cd " .. fnameescape(expand("%"))
+        return
+    endif
+
+    var dir = expand("%:h")
+    execute "cd " .. fnameescape(dir)
 enddef
 
+au BufEnter * call CleanBufs()
 def g:CleanBufs()
     var bufs = filter(getbufinfo({"buflisted": true}), (_, v) => !v.changed && v.hidden)
     for buf in bufs
         exe "bd " .. buf.bufnr
     endfor
 enddef
-# au BufEnter * call CleanBufs()
 
 def g:LspSetup()
     g:LspOptionsSet({
@@ -111,7 +118,7 @@ def g:LspSetup()
         name: 'clang',
         filetype: ['c', 'cpp'],
         path: 'clangd',
-        args: [ "--background-index", "--clang-tidy", "--completion-style=bundled", "--header-insertion=iwyu", "--header-insertion-decorators", "--limit-references=0", "--limit-results=0", "--rename-file-limit=0" ]
+        args: [ "--background-index", "--clang-tidy", "--completion-style=bundled", "--header-insertion=never", "--header-insertion-decorators", "--limit-references=0", "--limit-results=0", "--rename-file-limit=0" ]
     },
     {
         name: 'zls',
@@ -188,7 +195,6 @@ au VimEnter * sil! !echo -ne "\e[2 q" | redraw!
 se number
 se relativenumber
 se incsearch
-se autochdir
 se autoindent
 se copyindent
 se autoread
@@ -243,12 +249,24 @@ no <c-k> <c-w><c-k>
 no <c-l> <c-w><c-l>
 nn <silent><leader><leader> :noh<CR>
 no <silent>K <Plug>ManPreGetPage
+no <silent><c-s-k> <Plug>ManPreGetPage
 nno Y y$
 ino <c-space> <c-x><c-o>
 no <leader>q :call system("footclient&")<cr>
 no <silent><c-w>c :tabc<cr>
-no <silent><leader>m :call Make(FindProjRoot())<cr>
-no <silent><f6> :call Make(FindProjRoot())<cr>
+
+no <silent><f1> :call Script("f1")<cr>
+no <silent><f2> :call Script("f2")<cr>
+no <silent><f3> :call Script("f3")<cr>
+no <silent><f4> :call Script("f4")<cr>
+no <silent><f5> :call Script("f5")<cr>
+no <silent><f6> :call Script("f6")<cr>
+no <silent><f7> :call Script("f7")<cr>
+no <silent><f8> :call Script("f8")<cr>
+no <silent><f9> :call Script("f9")<cr>
+no <silent><f10> :call Script("f10")<cr>
+no <silent><f11> :call Script("f11")<cr>
+no <silent><f12> :call Script("f12")<cr>
 
 pa comment
 pa hlyank

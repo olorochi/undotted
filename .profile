@@ -9,7 +9,7 @@ export RUSTFLAGS="$RUSTFLAGS -C target-cpu=native"
 
 export HOSTNAME=$(cat /proc/sys/kernel/hostname)
 export PATH=~/scripts:$PATH
-export MANPATH="/usr/local/man"
+export MANPATH="$MANPATH:/usr/local/man"
 
 export EDITOR=vim
 export PAGER="vim -R -"

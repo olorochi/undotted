@@ -140,6 +140,7 @@ alias scan="wlan0 scan && wlan0 get-networks"
 alias c="wl-copy"
 alias rm="rm -I"
 alias etc="cp -rf ~/config/etc /"
+alias pydoc="MANPAGER=cat pydoc"
 
 alias -d vim="$HOME/config/vim/"
 alias -d sv="/etc/runit/sv/"
