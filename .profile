@@ -28,6 +28,7 @@ export SAVEHIST=100000
 
 export ENV=$HOME/config/kshrc
 export XDG_CONFIG_HOME=~/config
+export INPUTRC=$XDG_CONFIG_HOME/inputrc
 
 export MPD_HOST=$XDG_RUNTIME_DIR/mpd_socket
 export MPC_FORMAT='%artist% - %album% - %track%. %title% (%time%)'

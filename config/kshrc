@@ -63,16 +63,19 @@ function spwd {
 
 marker=$'\e]133;A\e\\'
 e=$'\1'
-PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$(spwd) $e\e[0m$e[$(jobstats)] > '
+PS1=$'$e\r$e$marker$(osc7)\e[34m$e$USER$e\e[0m$e@$e\e[31m$e$HOSTNAME $e\e[33m$e$(spwd) $e\e[0m$e[$(jobstats)]\n> '
 set -o vi
 
 alias sudo='s'
 alias s='\doas '
 alias su='s su'
-alias x='xargs'
-alias n='nice'
+alias x='xargs '
+alias n='nice '
+alias d="daemon "
 alias p=pacman
 alias y=yay
+alias z=zathura
+alias w=librewolf
 alias kys='export KISS_DEBUG=1'
 alias kcd=kiss_cd
 alias kadd=kiss_adddep
@@ -117,7 +120,6 @@ alias gre='g remote'
 alias gu='gch tags/$(gt | head -n 1)'
 alias gfu='gch tags/$(gt | fzf)'
 alias py='python3'
-alias ff='fastfetch'
 alias h='fc $(fc -rl 0 | fzf | cut -F 1)'
 alias rep='perf report'
 alias fuck='eval "sudo $(fc -ln -1)"'
