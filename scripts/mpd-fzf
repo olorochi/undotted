@@ -1,13 +1,46 @@
-#! /bin/sh
+#!/bin/sh
 
-pos=$(mpc -f '%position%' current)
-song=$(mpc playlist \
-	| fzf --tac --sync --raw --scroll-off 999999 \
-		--bind "start:pos(-$pos)" \
-		--bind "ctrl-h:pos(-$pos)" \
-		--bind "ctrl-b:best" \
-		--accept-nth '{n} + 1' \
-	| bc \
-	| sed "s/'/\\\'/g")
+mode=${1:-song}
 
-[ -n $song ] && mpc play $song
+case $mode in
+    song)
+        format='%position%\t%artist%\t%album%\t%title%'
+        awkformat='{ print $2 " — " $3 " — " $4 "\t" $1 }'
+        ;;
+    album)
+        format='%position%\t%album%\t%artist%'
+        awkformat='{ print $3 " — " $2 "\t" $1 }'
+        ;;
+    artist)
+        format='%position%\t%artist%'
+        awkformat='{ print $2 "\t" $1 }'
+        ;;
+    *)
+        printf 'Usage: %s [song|album|artist]\n' "$0" >&2
+        exit 1
+        ;;
+esac
+
+list=$(mpc -f "$format" playlist) || exit 1
+
+if [ "$mode" != song ]; then
+    list=$(printf '%s\n' "$list" |
+        awk -F '\t' '!seen[$2]++') # remove duplicates
+
+    current=$(mpc -f "%$mode%" current)
+    pos=$(printf '%s\n' "$list" |
+        awk -F '\t' -v c="$current" '$2 == c { print NR; exit }')
+else
+    pos=$(mpc -f '%position%' current)
+fi
+
+song=$(printf '%s\n' "$list" |
+    awk -F '\t' "$awkformat" |
+    fzf --tac --sync --raw --scroll-off 999999 \
+        --delimiter '\t' --with-nth 1 \
+        --bind "start:pos(-${pos:-0})" \
+        --bind "ctrl-h:pos(-${pos:-0})" \
+        --bind 'ctrl-b:best' |
+        cut -f 2)
+
+mpc play "$song"

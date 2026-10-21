@@ -143,7 +143,9 @@ mode "-- MPD --" {
     bindsym --no-repeat Shift+l exec mpc next
     bindsym --no-repeat Space exec mpc toggle
     bindsym --no-repeat u exec mpd-playlist
-    bindsym --no-repeat f exec $float mpd-fzf; mode "default"
+    bindsym --no-repeat s exec $float mpd-fzf; mode "default"
+    bindsym --no-repeat f exec $float mpd-fzf album; mode "default"
+    bindsym --no-repeat a exec $float mpd-fzf artist; mode "default"
     bindsym --no-repeat p exec mpd-album-shuffle play; mpc play
     bindsym j exec mpc volume -5
     bindsym k exec mpc volume +5
