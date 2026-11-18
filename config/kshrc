@@ -76,15 +76,15 @@ alias p=pacman
 alias y=yay
 alias z=zathura
 alias w=librewolf
+alias f=fzf
+alias c=wl-copy
+alias fr='f --raw --bind change:best'
+alias k=kiss
 alias kys='export KISS_DEBUG=1'
 alias kcd=kiss_cd
 alias kadd=kiss_adddep
 alias krem=kiss_remdep
-alias f='fzf'
-alias fr='f --raw --bind change:best'
-alias g='git'
-alias add='ga $(gls)'
-alias commit='gc -m "Quick commit."'
+alias g=git
 alias gcl='g clone'
 alias ghcl='github_clone'
 alias ga='g add'
@@ -119,7 +119,13 @@ alias gt="g tag --sort='-*authordate'"
 alias gre='g remote'
 alias gu='gch tags/$(gt | head -n 1)'
 alias gfu='gch tags/$(gt | fzf)'
-alias py='python3'
+alias add='ga $(gls)'
+alias commit='gc -m "Quick commit."'
+alias py=python3
+alias pimp=pip
+alias ls="ls --color=auto"
+alias la="ls -a"
+alias l="ls -lah"
 alias h='fc $(fc -rl 0 | fzf | cut -F 1)'
 alias rep='perf report'
 alias fuck='eval "sudo $(fc -ln -1)"'
@@ -127,19 +133,14 @@ alias zigstd="zig std --no-open-browser | head -n 1 | xargs librewolf"
 alias swayconf='vim ~/config/sway/config'
 alias config='vim ~/config/kshrc && . ~/config/kshrc'
 alias profile='vim ~/.profile && . ~/.profile'
-alias ls="ls --color=auto"
-alias la="ls -a"
-alias l="ls -lah"
 alias grep="grep --color=auto"
 alias vert="swaymsg -- output HDMI-A-1 transform 270 position 0 -1920"
 alias 4k="swaymsg -- output HDMI-A-1 resolution 3840x2160@60hz position 0 -3840"
-alias pimp="pip"
 alias reload="exec $SHELL"
 alias less="$PAGER"
 alias wlan0="iwctl station wlan0"
 alias connect="wlan0 connect"
 alias scan="wlan0 scan && wlan0 get-networks"
-alias c="wl-copy"
 alias rm="rm -I"
 alias etc="cp -rf ~/config/etc /"
 alias pydoc="MANPAGER=cat pydoc"
@@ -223,7 +224,7 @@ function recf {
 }
 
 function kiss_cd {
-  cd $(k s $1 | head -n 1)
+  cd $(kiss s $1 | head -n 1)
 }
 
 function kiss_adddep {

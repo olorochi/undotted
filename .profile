@@ -27,6 +27,7 @@ export HISTSIZE=10000
 export SAVEHIST=100000
 
 export ENV=$HOME/config/kshrc
+export BASH_ENV=$HOME/config/kshrc
 export XDG_CONFIG_HOME=~/config
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
 
