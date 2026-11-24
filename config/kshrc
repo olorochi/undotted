@@ -78,6 +78,7 @@ alias z=zathura
 alias w=librewolf
 alias f=fzf
 alias c=wl-copy
+alias pa=wl-paste
 alias fr='f --raw --bind change:best'
 alias k=kiss
 alias kys='export KISS_DEBUG=1'
